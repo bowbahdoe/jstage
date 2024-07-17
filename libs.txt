@@ -1,0 +1,2 @@
+pkg:maven/info.picocli/picocli@4.7.6
+pkg:maven/dev.mccue/json@2023.12.23

@@ -1,0 +1,47 @@
+project:
+  name: jstage
+  version: 2024.07.17
+  description: Stage artifacts for publishing to a maven repository.
+  longDescription: Stage artifacts for publishing to a maven repository.
+  links:
+    homepage: https://github.com/bowbahdoe/jstage
+  authors:
+    - Ethan McCue
+  license: APACHE-2.0
+  inceptionYear: 2024
+  versionPattern: CHRONVER
+  java:
+    mainModule: dev.mccue.jstage
+
+assemble:
+  javaArchive:
+    jstage:
+      active: ALWAYS
+      formats: [ ZIP ]
+      stereotype: cli
+      fileSets:
+        - input: 'libs'
+          output: 'lib'
+      mainJar:
+        path: build/jar/jstage.jar
+      java:
+        mainModule:
+          dev.mccue.jstage
+        mainClass:
+          dev.mccue.jstage.JStage
+
+signing:
+  active: ALWAYS
+  armored: true
+
+deploy:
+  maven:
+    nexus2:
+      maven-central:
+        active: ALWAYS
+        url: https://s01.oss.sonatype.org/service/local
+        snapshotUrl: https://s01.oss.sonatype.org/content/repositories/snapshots/
+        closeRepository: true
+        releaseRepository: false
+        stagingRepositories:
+          - target/staging-deploy
