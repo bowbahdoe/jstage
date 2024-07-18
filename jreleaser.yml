@@ -12,6 +12,8 @@ project:
   versionPattern: CHRONVER
   java:
     mainModule: dev.mccue.jstage
+    groupId: dev.mccue
+    artifactId: jstage
 
 assemble:
   javaArchive:
@@ -41,7 +43,7 @@ deploy:
         active: ALWAYS
         url: https://s01.oss.sonatype.org/service/local
         snapshotUrl: https://s01.oss.sonatype.org/content/repositories/snapshots/
-        closeRepository: true
+        closeRepository: false
         releaseRepository: false
         stagingRepositories:
-          - target/staging-deploy
+          - build/staging

@@ -9,6 +9,32 @@
     <version>2024.07.17</version>
     <packaging>jar</packaging>
 
+    <name>jstage</name>
+    <description>Stage artifacts for publishing to a maven repository.</description>
+    <url>https://github.com/bowbahdoe/jstage</url>
+
+    <developers>
+        <developer>
+            <name>Ethan McCue</name>
+            <email>ethan@mccue.dev</email>
+            <organization>McCue Software Solutions</organization>
+            <organizationUrl>https://www.mccue.dev</organizationUrl>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git://github.com/bowbahdoe/jstage.git</connection>
+        <developerConnection>scm:git:ssh://github.com:bowbahdoe/jstage.git</developerConnection>
+        <url>http://github.com/bowbahdoe/jstage/tree/main</url>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>info.picocli</groupId>

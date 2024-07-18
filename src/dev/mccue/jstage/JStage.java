@@ -6,6 +6,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleFinder;
 import java.nio.file.Files;
@@ -13,34 +14,47 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import java.util.spi.ToolProvider;
 
-@CommandLine.Command(name = "jstage", description = "Stage artifacts for publishing to a maven repository.")
+@CommandLine.Command(
+        name = "jstage",
+        description = "Stage artifacts for publishing to a maven repository."
+)
 public final class JStage implements Callable<Integer> {
     @CommandLine.Option(names = {"--output"}, required = true)
     public File output;
+
     @CommandLine.Option(names = {"--pom"}, required = true)
     public File pom;
-    @CommandLine.Option(names = {"--jar"}, required = true)
-    public File jar;
-    @CommandLine.Option(names = {"--sources"})
-    public File sources;
 
-    @CommandLine.Option(
-            names = {"--documentation"},
-            description = "The documentation for the artifact either in a jar or a directory."
-    )
-    public File documentation;
+    @CommandLine.Option(names = {"--artifact"}, required = true)
+    public File artifact;
 
-    PrintStream out;
-    PrintStream err;
+    @CommandLine.Option(names = {"--classifier"})
+    public String classifier = "";
 
-    JStage(PrintStream out, PrintStream err) {
+    @CommandLine.Option(names = {"--type"})
+    public String type = "jar";
+
+    PrintWriter out;
+    PrintWriter err;
+
+    JStage(PrintWriter out, PrintWriter err) {
         this.out = out;
         this.err = err;
+    }
+
+    JStage(PrintStream out, PrintStream err) {
+        this.out = new PrintWriter(out);
+        this.err = new PrintWriter(err);
+    }
+
+    public static ToolProvider provider() {
+        return new JStageToolProvider();
     }
 
     public static void main(String[] args) {
@@ -62,27 +76,27 @@ public final class JStage implements Callable<Integer> {
         var rootElement = document.getDocumentElement();
 
 
-        String group = null;
-        String artifact = null;
+        String groupId = null;
+        String artifactId = null;
         String version = null;
 
         var rootElementChildren = rootElement.getChildNodes();
         for (int i = 0; i < rootElementChildren.getLength(); i++) {
             var projectElementChild = rootElementChildren.item(i);
             if (projectElementChild.getNodeName().equals("groupId")) {
-                if (group != null) {
+                if (groupId != null) {
                     err.println("<groupId> specified more than once in pom");
                     return 1;
                 }
-                group = projectElementChild.getTextContent();
+                groupId = projectElementChild.getTextContent();
             }
 
             if (projectElementChild.getNodeName().equals("artifactId")) {
-                if (artifact != null) {
+                if (artifactId != null) {
                     err.println("<artifactId> specified more than once in pom");
                     return 1;
                 }
-                artifact = projectElementChild.getTextContent();
+                artifactId = projectElementChild.getTextContent();
             }
 
             if (projectElementChild.getNodeName().equals("version")) {
@@ -94,12 +108,12 @@ public final class JStage implements Callable<Integer> {
             }
         }
 
-        if (group == null) {
+        if (groupId == null) {
             err.println("<groupId> not specified in pom");
             return 1;
         }
 
-        if (artifact == null) {
+        if (artifactId == null) {
             err.println("<artifactId> not specified in pom");
             return 1;
         }
@@ -114,14 +128,14 @@ public final class JStage implements Callable<Integer> {
             return 1;
         }
 
-        group = group.strip();
-        artifact = artifact.strip();
+        groupId = groupId.strip();
+        artifactId = artifactId.strip();
         version = version.strip();
 
         var basePathParts = new ArrayList<>(
-                Arrays.asList(group.split("\\."))
+                Arrays.asList(groupId.split("\\."))
         );
-        basePathParts.add(artifact);
+        basePathParts.add(artifactId);
         basePathParts.add(version);
         Path basePath = Path.of(
                 output.toPath().toString(),
@@ -132,84 +146,56 @@ public final class JStage implements Callable<Integer> {
                 .orElseThrow();
 
         try {
-            Path unstagedSourcesPath = null;
-            if (sources != null) {
-                if (Files.isDirectory(sources.toPath())) {
-                    var temp = Files.createTempFile(artifact, "sources");
+            Path unstagedPath = artifact.toPath();
+            if (List.of("sources", "javadoc").contains(classifier) && "jar".equals(type)) {
+                if (Files.isDirectory(artifact.toPath())) {
+                    var temp = Files.createTempFile(artifactId, classifier + ".jar");
                     int jarExitCode = jarTool.get()
                             .run(out, err, new String[]{
                                     "--create",
                                     "--file", temp.toString(),
-                                    "-C", sources.toPath().toString(), "."
+                                    "-C", artifact.toPath().toString(), "."
                             });
                     if (jarExitCode != 0) {
                         err.println("error running jar command for sources");
                         return jarExitCode;
                     }
-                    unstagedSourcesPath = temp;
-                } else {
-                    unstagedSourcesPath = sources.toPath();
+                    unstagedPath = temp;
                 }
             }
 
 
-            Path unstagedDocumentationPath = null;
-            if (documentation != null) {
-                if (Files.isDirectory(documentation.toPath())) {
-                    var temp = Files.createTempFile(artifact, "javadoc");
-                    int jarExitCode = jarTool.get()
-                            .run(out, err, new String[]{
-                                    "--create",
-                                    "--file", temp.toString(),
-                                    "-C", documentation.toPath().toString(), "."
-                            });
-                    if (jarExitCode != 0) {
-                        err.println("error running jar command for documentation");
-                        return jarExitCode;
-                    }
-                    unstagedDocumentationPath = temp;
-                } else {
-                    unstagedDocumentationPath = documentation.toPath();
-                }
-            }
-
-            Path pomPath = Path.of(basePath.toString(), artifact + "-" + version + ".pom");
-            Path jarPath = Path.of(basePath.toString(), artifact + "-" + version + ".jar");
+            Path pomPath = Path.of(basePath.toString(), artifactId + "-" + version + ".pom");
+            Path jarPath = Path.of(basePath.toString(), artifactId + "-" + version + (classifier.isBlank() ? "" : ("-" + classifier)) + "." + type);
 
             Files.createDirectories(pomPath.getParent());
             Files.copy(pom.toPath(), pomPath, StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(jar.toPath(), jarPath, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(unstagedPath, jarPath, StandardCopyOption.REPLACE_EXISTING);
 
-            if (unstagedSourcesPath != null) {
-                Path sourcesPath = Path.of(basePath.toString(), artifact + "-" + version + "-sources.jar");
-                Files.copy(unstagedSourcesPath, sourcesPath, StandardCopyOption.REPLACE_EXISTING);
-            }
-            if (unstagedDocumentationPath != null) {
-                Path documentationPath = Path.of(basePath.toString(), artifact + "-" + version + "-javadoc.jar");
-                Files.copy(unstagedDocumentationPath, documentationPath, StandardCopyOption.REPLACE_EXISTING);
-            }
-
-            var moduleRef = ModuleFinder.of(jar.toPath()).findAll()
-                    .stream()
-                    .findFirst()
-                    .orElse(null);
-            if (moduleRef == null) {
-                err.println("jar is not recognizable as a module");
-                return 1;
-            }
-
-            if (moduleRef.descriptor().isAutomatic()) {
-                err.println("warning: staging an automatic module");
-            }
-            else {
-                var moduleDescriptorVersion = moduleRef.descriptor().version().orElse(null);
-                if (!Objects.equals(moduleDescriptorVersion, ModuleDescriptor.Version.parse(version))) {
-                    err.println("module version does not match version specified in pom. pom has " + version +
-                                (moduleDescriptorVersion == null ? ". module has no version specified. Use --module-version with javac."
-                                        : ". module has " + moduleDescriptorVersion));
+            if ("jar".equals(type) && !List.of("sources", "javadoc").contains(classifier)) {
+                var moduleRef = ModuleFinder.of(artifact.toPath()).findAll()
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
+                if (moduleRef == null) {
+                    err.println("jar is not recognizable as a module");
                     return 1;
                 }
+
+                if (moduleRef.descriptor().isAutomatic()) {
+                    err.println("warning: staging an automatic module");
+                }
+                else {
+                    var moduleDescriptorVersion = moduleRef.descriptor().version().orElse(null);
+                    if (!Objects.equals(moduleDescriptorVersion, ModuleDescriptor.Version.parse(version))) {
+                        err.println("module version does not match version specified in pom. pom has " + version +
+                                    (moduleDescriptorVersion == null ? ". module has no version specified. Use --module-version with javac."
+                                            : ". module has " + moduleDescriptorVersion));
+                        return 1;
+                    }
+                }
             }
+
         } catch (FileNotFoundException f) {
             err.println("file not found: " + f.getMessage());
             return 1;

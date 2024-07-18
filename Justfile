@@ -6,34 +6,48 @@ clean:
 
 compile: clean
     javac \
-      -d build/javac \
-      --module-path libs \
-      --release 21 \
-      --module-version 2024.07.17 \
-      $(find ./src -name "*.java" -type f)
+        -d build/javac \
+        --module-path libs \
+        --release 21 \
+        --module-version 2024.07.17 \
+        $(find ./src -name "*.java" -type f)
 
     jar --create \
         --file build/jar/jstage.jar \
         --main-class dev.mccue.jstage.JStage \
         -C build/javac .
 
-    jar --create \
-        --file build/jar/sources.jar \
-        -C src .
-
     javadoc \
         -d build/javadoc \
         --module-path libs \
+        -Xdoclint:none \
+        -quiet \
         $(find ./src -name "*.java" -type f)
 
-debug: compile
+stage: compile
     java --module-path build/jar/jstage.jar:libs \
-      --module dev.mccue.jstage \
-      --pom pom.xml \
-      --jar build/jar/jstage.jar \
-      --sources src \
-      --documentation build/javadoc \
-      --output build/staging
+        --module dev.mccue.jstage \
+        --pom pom.xml \
+        --artifact build/jar/jstage.jar \
+        --output build/staging
 
+    java --module-path build/jar/jstage.jar:libs \
+       --module dev.mccue.jstage \
+       --pom pom.xml \
+       --artifact src \
+       --classifier sources \
+       --output build/staging
+
+    java --module-path build/jar/jstage.jar:libs \
+        --module dev.mccue.jstage \
+        --pom pom.xml \
+        --artifact build/javadoc \
+        --classifier javadoc \
+        --output build/staging
+
+release: stage
+    jreleaser release
+
+assemble: compile
     jreleaser assemble --output-directory build
 
