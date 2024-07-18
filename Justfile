@@ -24,6 +24,10 @@ compile: clean
         -quiet \
         $(find ./src -name "*.java" -type f)
 
+
+assemble: compile
+    jreleaser assemble --output-directory build
+
 stage: compile
     java --module-path build/jar/jstage.jar:libs \
         --module dev.mccue.jstage \
@@ -45,11 +49,7 @@ stage: compile
         --classifier javadoc \
         --output build/staging
 
-
-assemble: compile
-    jreleaser assemble --output-directory build
-
-release: assemble stage
-    jreleaser release
+release: stage
+    jreleaser release --output-directory build
 
 
