@@ -13,11 +13,10 @@ jobs:
         with:
           java-version: '21'
           distribution: 'adopt'
-      - uses: sdkman/sdkman-action@v1
-        id: sdkman
+      - name: setup jreleaser
+        uses: sfesenko/setup-sdkman@v1
         with:
-          candidate: jreleaser
-          version: 1.13.1
+          deps: jreleaser
       - uses: extractions/setup-just@v2
       - name: Publish package
         env:
