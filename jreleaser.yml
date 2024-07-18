@@ -1,6 +1,6 @@
 project:
   name: jstage
-  version: 2024.07.17
+  version: 2024.07.18
   description: Stage artifacts for publishing to a maven repository.
   longDescription: Stage artifacts for publishing to a maven repository.
   links:

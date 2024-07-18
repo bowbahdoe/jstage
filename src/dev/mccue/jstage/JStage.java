@@ -68,6 +68,7 @@ public final class JStage implements Callable<Integer> {
     public Integer call() throws Exception {
         if (!pom.isFile()) {
             err.println("pom must be a file");
+            err.flush();
             return 1;
         }
         var document = DocumentBuilderFactory.newDefaultInstance()
@@ -86,6 +87,7 @@ public final class JStage implements Callable<Integer> {
             if (projectElementChild.getNodeName().equals("groupId")) {
                 if (groupId != null) {
                     err.println("<groupId> specified more than once in pom");
+                    err.flush();
                     return 1;
                 }
                 groupId = projectElementChild.getTextContent();
@@ -94,6 +96,7 @@ public final class JStage implements Callable<Integer> {
             if (projectElementChild.getNodeName().equals("artifactId")) {
                 if (artifactId != null) {
                     err.println("<artifactId> specified more than once in pom");
+                    err.flush();
                     return 1;
                 }
                 artifactId = projectElementChild.getTextContent();
@@ -102,6 +105,7 @@ public final class JStage implements Callable<Integer> {
             if (projectElementChild.getNodeName().equals("version")) {
                 if (version != null) {
                     err.println("<version> specified more than once in pom");
+                    err.flush();
                     return 1;
                 }
                 version = projectElementChild.getTextContent();
@@ -110,21 +114,25 @@ public final class JStage implements Callable<Integer> {
 
         if (groupId == null) {
             err.println("<groupId> not specified in pom");
+            err.flush();
             return 1;
         }
 
         if (artifactId == null) {
             err.println("<artifactId> not specified in pom");
+            err.flush();
             return 1;
         }
 
         if (version == null) {
             err.println("<version> not specified in pom");
+            err.flush();
             return 1;
         }
 
         if (version.contains("${")) {
             err.println("<version> appears to be using a property substitution. This is not supported.");
+            err.flush();
             return 1;
         }
 
@@ -158,6 +166,7 @@ public final class JStage implements Callable<Integer> {
                             });
                     if (jarExitCode != 0) {
                         err.println("error running jar command for sources");
+                        err.flush();
                         return jarExitCode;
                     }
                     unstagedPath = temp;
@@ -179,11 +188,13 @@ public final class JStage implements Callable<Integer> {
                         .orElse(null);
                 if (moduleRef == null) {
                     err.println("jar is not recognizable as a module");
+                    err.flush();
                     return 1;
                 }
 
                 if (moduleRef.descriptor().isAutomatic()) {
                     err.println("warning: staging an automatic module");
+                    err.flush();
                 }
                 else {
                     var moduleDescriptorVersion = moduleRef.descriptor().version().orElse(null);
@@ -191,6 +202,7 @@ public final class JStage implements Callable<Integer> {
                         err.println("module version does not match version specified in pom. pom has " + version +
                                     (moduleDescriptorVersion == null ? ". module has no version specified. Use --module-version with javac."
                                             : ". module has " + moduleDescriptorVersion));
+                        err.flush();
                         return 1;
                     }
                 }
@@ -198,6 +210,7 @@ public final class JStage implements Callable<Integer> {
 
         } catch (FileNotFoundException f) {
             err.println("file not found: " + f.getMessage());
+            err.flush();
             return 1;
         }
 
