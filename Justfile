@@ -45,9 +45,11 @@ stage: compile
         --classifier javadoc \
         --output build/staging
 
-release: stage
-    jreleaser release
 
 assemble: compile
     jreleaser assemble --output-directory build
+
+release: assemble stage
+    jreleaser release
+
 
