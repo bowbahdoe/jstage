@@ -15,6 +15,23 @@ project:
     groupId: dev.mccue
     artifactId: jstage
 
+assemble:
+  javaArchive:
+    jstage:
+      active: ALWAYS
+      formats: [ ZIP ]
+      stereotype: cli
+      fileSets:
+        - input:  'libs'
+          output: 'lib'
+      mainJar:
+        path: build/jar/jstage.jar
+      java:
+        mainModule:
+          dev.mccue.jstage
+        mainClass:
+          dev.mccue.jstage.JStage
+
 signing:
   active: ALWAYS
   armored: true

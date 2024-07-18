@@ -49,7 +49,7 @@ stage: compile
         --classifier javadoc \
         --output build/staging
 
-release: stage
-    jreleaser release --output-directory build
+deploy: stage
+    jreleaser deploy --output-directory build
 
 
