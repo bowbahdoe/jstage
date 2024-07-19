@@ -7,6 +7,8 @@ module dev.mccue.jstage {
     requires java.xml;
     exports dev.mccue.jstage;
 
-    provides ToolProvider
-            with JStage;
+    opens dev.mccue.jstage to info.picocli;
+    provides ToolProvider with JStage;
+
+    requires jdk.jpackage;
 }

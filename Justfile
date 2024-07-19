@@ -9,7 +9,7 @@ compile: clean
         -d build/javac \
         --module-path libs \
         --release 21 \
-        --module-version 2024.07.18 \
+        --module-version 2024.07.19 \
         $(find ./src -name "*.java" -type f)
 
     jar --create \

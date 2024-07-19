@@ -15,8 +15,13 @@ final class JStageToolProvider implements ToolProvider {
 
     @Override
     public Optional<String> description() {
-        return Optional.of(String.join("\n", JStage.class.getAnnotation(CommandLine.Command.class)
-                .description()));
+        return Optional.of(
+                String.join(
+                "\n",
+                        JStage.class.getAnnotation(CommandLine.Command.class)
+                                .description()
+                )
+        );
     }
 
     @Override
