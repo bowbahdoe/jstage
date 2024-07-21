@@ -57,3 +57,7 @@ packagers:
       active: RELEASE
       owner: bowbahdoe
       name: asdf-jstage
+
+release:
+  github:
+    enabled: false
