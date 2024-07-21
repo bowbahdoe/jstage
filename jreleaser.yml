@@ -46,3 +46,14 @@ deploy:
         releaseRepository: false
         stagingRepositories:
           - build/staging
+
+packagers:
+  asdf:
+    active: ALWAYS
+    commitAuthor:
+      name: jreleaserbot
+      email: ethan@mccue.dev
+    repository:
+      active: RELEASE
+      owner: bowbahdoe
+      name: asdf-jstage

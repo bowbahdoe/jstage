@@ -2,7 +2,10 @@ help:
     just --list
 
 clean:
-    rm -rf build
+    BUILD_FOLDER=".build/$(date +%s)" && \
+      mkdir -p $BUILD_FOLDER && \
+      rm -rf build && \
+      ln -s $BUILD_FOLDER build
 
 compile: clean
     javac \
@@ -51,5 +54,4 @@ stage: compile
 
 deploy: stage
     jreleaser deploy --output-directory build
-
 

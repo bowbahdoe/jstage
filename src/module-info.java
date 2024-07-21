@@ -9,6 +9,4 @@ module dev.mccue.jstage {
 
     opens dev.mccue.jstage to info.picocli;
     provides ToolProvider with JStage;
-
-    requires jdk.jpackage;
 }
