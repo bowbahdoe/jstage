@@ -58,9 +58,9 @@ fi
 
 if [[ "$version" == "" ]]; then
     if [[ "$dev_build" == "true" ]]; then
-        version="$(curl -sL https://raw.githubusercontent.com/bowbahdoe/jresolve/main/JRESOLVE_VERSION)"
+        version="$(curl -sL https://raw.githubusercontent.com/bowbahdoe/jstage/main/JSTAGE_VERSION)"
     else
-        version="$(curl -sL https://raw.githubusercontent.com/bowbahdoe/jstage/main/JRESOLVE_RELEASED_VERSION)"
+        version="$(curl -sL https://raw.githubusercontent.com/bowbahdoe/jstage/main/JSTAGE_RELEASED_VERSION)"
     fi
 fi
 
