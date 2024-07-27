@@ -14,6 +14,13 @@ jobs:
         with:
           java-version: '21'
           distribution: 'adopt'
+      - name: Install JResolve
+        run:
+          bash < <(curl -s https://raw.githubusercontent.com/bowbahdoe/jresolve-cli/main/install)
+
+      - name: Install Dependencies
+        run:
+          just install
       - name: setup jreleaser
         uses: sfesenko/setup-sdkman@v1
         with:
