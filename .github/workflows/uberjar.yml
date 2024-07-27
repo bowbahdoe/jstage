@@ -19,7 +19,7 @@ jobs:
 
       - name: Install Dependencies
         run:
-          echo $(java --version) && just install
+          just install
 
       - uses: extractions/setup-just@v2
       - name: Build Binary
