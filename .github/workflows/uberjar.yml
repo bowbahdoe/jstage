@@ -15,11 +15,11 @@ jobs:
 
       - name: Install JResolve
         run:
-          bash < <(curl -s  https://raw.githubusercontent.com/bowbahdoe/jresolve-cli/main/install)
+          bash < <(curl -s https://raw.githubusercontent.com/bowbahdoe/jresolve-cli/main/install)
 
       - name: Install Dependencies
         run:
-          just install
+          echo $(java --version) && just install
 
       - uses: extractions/setup-just@v2
       - name: Build Binary
