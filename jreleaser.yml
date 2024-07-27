@@ -14,6 +14,23 @@ project:
     mainModule: dev.mccue.jstage
     groupId: dev.mccue
 
+assemble:
+  javaArchive:
+    jstage:
+      active: ALWAYS
+      formats: [ ZIP ]
+      stereotype: cli
+      fileSets:
+        - input:  'libs'
+          output: 'lib'
+      mainJar:
+        path: build/jar/jstage.jar
+      java:
+        mainModule:
+          dev.mccue.jstage
+        mainClass:
+          dev.mccue.jstage.JStage
+
 signing:
   active: ALWAYS
   armored: true
@@ -30,3 +47,17 @@ deploy:
         stagingRepositories:
           - build/staging
 
+packagers:
+  asdf:
+    active: ALWAYS
+    commitAuthor:
+      name: jreleaserbot
+      email: ethan@mccue.dev
+    repository:
+      active: RELEASE
+      owner: bowbahdoe
+      name: asdf-jstage
+
+release:
+  github:
+    enabled: false

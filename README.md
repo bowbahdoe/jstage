@@ -4,7 +4,9 @@
 
 ### Bash
 
+```
 bash < <(curl -s https://raw.githubusercontent.com/bowbahdoe/jstage/main/install)
+```
 
 ### Maven
 
