@@ -7,6 +7,14 @@ clean:
       rm -rf build && \
       ln -s $BUILD_FOLDER build
 
+install:
+    jresolve \
+      --purge-output-directory \
+      --output-directory libs \
+      --enrich-pom pom.xml \
+      --use-module-names \
+      @libs.txt
+
 compile: clean
     javac \
         -d build/javac \
@@ -54,4 +62,14 @@ stage: compile
 
 deploy: stage
     jreleaser deploy --output-directory build
+
+uberjar: compile
+    mkdir -p build/uberjar/temp
+    unzip -q -d build/uberjar/temp libs/info.picocli.jar -x "META-INF/*"
+    unzip -q -d build/uberjar/temp build/jar/jstage.jar -x "module-info.class"
+    javac -d build/uberjar/temp --class-path build/uberjar src_uber/module-info.java
+    jar --create \
+      --file build/uberjar/jstage-uber.jar \
+      --main-class dev.mccue.jstage.JStage \
+      -C build/uberjar/temp .
 

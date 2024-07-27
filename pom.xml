@@ -1,18 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>dev.mccue</groupId>
     <artifactId>jstage</artifactId>
     <version>2024.07.19</version>
     <packaging>jar</packaging>
-
     <name>jstage</name>
     <description>Stage artifacts for publishing to a maven repository.</description>
     <url>https://github.com/bowbahdoe/jstage</url>
-
     <developers>
         <developer>
             <name>Ethan McCue</name>
@@ -21,20 +15,17 @@
             <organizationUrl>https://www.mccue.dev</organizationUrl>
         </developer>
     </developers>
-
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
-
     <scm>
         <connection>scm:git:git://github.com/bowbahdoe/jstage.git</connection>
         <developerConnection>scm:git:ssh://github.com:bowbahdoe/jstage.git</developerConnection>
         <url>http://github.com/bowbahdoe/jstage/tree/main</url>
     </scm>
-
     <dependencies>
         <dependency>
             <groupId>info.picocli</groupId>

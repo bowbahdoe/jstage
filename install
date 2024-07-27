@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+version=""
+default_install_dir="/usr/local/bin"
+install_dir="$default_install_dir"
+download_dir=""
+dev_build=""
+
+print_help() {
+    echo "Installs latest (or specific) version of jresolve. Installation directory defaults to /usr/local/bin."
+    echo -e
+    echo "Usage:"
+    echo "install [--dir <dir>] [--download-dir <download-dir>] [--version <version>]"
+    echo -e
+    echo "Defaults:"
+    echo " * Installation directory: ${default_install_dir}"
+    echo " * Download directory: temporary"
+    echo " * Version: <Latest release on github>"
+    exit 1
+}
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    case "$key" in
+        --dir)
+            install_dir="$2"
+            shift
+            shift
+            ;;
+        --download-dir)
+            download_dir="$2"
+            shift
+            shift
+            ;;
+        --version)
+            version="$2"
+            shift
+            shift
+            ;;
+        --dev-build)
+            dev_build="true"
+            shift
+            ;;
+        *)    # unknown option
+            print_help
+            shift
+            ;;
+    esac
+done
+
+if [[ -z "$download_dir" ]]; then
+    download_dir="$(mktemp -d)"
+    trap 'rm -rf "$download_dir"' EXIT
+fi
+
+if [[ "$version" == "" ]]; then
+    if [[ "$dev_build" == "true" ]]; then
+        version="$(curl -sL https://raw.githubusercontent.com/bowbahdoe/jresolve/main/JRESOLVE_VERSION)"
+    else
+        version="$(curl -sL https://raw.githubusercontent.com/bowbahdoe/jstage/main/JRESOLVE_RELEASED_VERSION)"
+    fi
+fi
+
+repo="jstage"
+
+download_url="https://github.com/bowbahdoe/$repo/releases/download/v$version/jstage.jar"
+
+# Running this part in a subshell so when it finishes we go back to the previous directory
+mkdir -p "$download_dir" && (
+    cd "$download_dir"
+    echo -e "Downloading $download_url to $download_dir"
+    curl -o "jstage.jar" -sL "$download_url"
+)
+
+if [[ "$download_dir" != "$install_dir" ]]
+then
+    mkdir -p "$install_dir"
+    if [ -f "$install_dir/jstage" ]; then
+        echo "Moving $install_dir/jstage to $install_dir/jstage.old"
+        mv -f "$install_dir/jstage" "$install_dir/jstage.old"
+    fi
+    echo "#!/usr/bin/java -jar" > "$install_dir/jstage"
+    cat  "$download_dir/jstage.jar" >> "$install_dir/jstage"
+    chmod +x "$install_dir/jstage"
+fi
+
+echo "Successfully installed jstage in $install_dir"
