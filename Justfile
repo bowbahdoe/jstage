@@ -67,7 +67,7 @@ uberjar: compile
     mkdir -p build/uberjar/temp
     unzip -q -d build/uberjar/temp libs/info.picocli.jar -x "META-INF/*"
     unzip -q -d build/uberjar/temp build/jar/jstage.jar -x "module-info.class"
-    javac -d build/uberjar/temp --class-path build/uberjar src_uber/module-info.java
+    javac -d build/uberjar/temp --class-path build/uberjar --module-version 2024.07.27 src_uber/module-info.java
     jar --create \
       --file build/uberjar/jstage-uber.jar \
       --main-class dev.mccue.jstage.JStage \
