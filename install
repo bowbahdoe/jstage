@@ -82,7 +82,7 @@ then
         echo "Moving $install_dir/jstage to $install_dir/jstage.old"
         mv -f "$install_dir/jstage" "$install_dir/jstage.old"
     fi
-    echo "#!/usr/bin/java -jar" > "$install_dir/jstage"
+    echo "#!/usr/bin/env -S java -jar" > "$install_dir/jstage"
     cat  "$download_dir/jstage.jar" >> "$install_dir/jstage"
     chmod +x "$install_dir/jstage"
 fi
