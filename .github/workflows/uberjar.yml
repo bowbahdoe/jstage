@@ -29,5 +29,5 @@ jobs:
       - name: Upload Binary
         uses: actions/upload-artifact@v4
         with:
-          name: jresolve.jar
+          name: jstage.jar
           path: build/uberjar/jstage-uber.jar
