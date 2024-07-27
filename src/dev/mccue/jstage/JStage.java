@@ -24,7 +24,7 @@ import java.util.spi.ToolProvider;
         name = "jstage",
         description = "Stage artifacts for publishing to a maven repository.",
         mixinStandardHelpOptions = true,
-        versionProvider = JStage.VersionProvider.class
+        version = "v2024.07.27"
 )
 public final class JStage implements Callable<Integer> {
     @CommandLine.Option(names = {"--output"}, required = true)
@@ -217,16 +217,5 @@ public final class JStage implements Callable<Integer> {
         }
 
         return 0;
-    }
-
-    static final class VersionProvider implements CommandLine.IVersionProvider {
-        @Override
-        public String[] getVersion() {
-            return VersionProvider.class.getModule()
-                    .getDescriptor()
-                    .version()
-                    .map(v -> new String[] { v.toString() })
-                    .orElseThrow(() -> new RuntimeException("No version specified on module."));
-        }
     }
 }
